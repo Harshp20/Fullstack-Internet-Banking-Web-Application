@@ -21,13 +21,11 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
     if (modifyUser) {
       formData = {
         ...registrationData,
-        idNo: userData?.idNo,
         bankAccountBalance: userData?.bankAccountBalance || 100,
       }
     } else {
       formData = {
         ...registrationData,
-        idNo: crypto.randomUUID(),
         bankAccountNo: Date.now().toString(),
         bankAccountBalance: userData?.bankAccountBalance || 100,
         type: 'customer',
@@ -62,18 +60,16 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
   }
 
   const loginUser = async (loginFormData: ILoginForm) => {
-    setIsLoading(true)
     const axiosOptions = getAxiosOptions()
     const formData = loginFormData
     try {
       const response = await axios.post(process.env.REACT_APP_API_URL + '/auth/login', formData, axiosOptions)
-      setIsLoading(false)
       if (response.data) {
         setUserData(response.data)
+        setIsLoading(false)
         return Promise.resolve('Login successful')
       }
     } catch (err) {
-      setIsLoading(false)
       setIsError(true)
       setTimeout(() => setIsError(false), 3000)
       console.error(err)
@@ -108,9 +104,9 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
     try {
       let response;
       if (modifyUser && userData) {
-        response = await axios.put(process.env.REACT_APP_API_URL + '/user/' + userData.id, formData, axiosOptions)
+        response = await axios.put(process.env.REACT_APP_API_URL + '/auth/edit_customer' + userData.id, formData, axiosOptions)
       } else {
-        response = await axios.post(process.env.REACT_APP_API_URL + '/user', formData, axiosOptions)
+        response = await axios.post(process.env.REACT_APP_API_URL + '/auth/signup', formData, axiosOptions)
       }
       setIsLoading(false)
       setIsRegistered(true)

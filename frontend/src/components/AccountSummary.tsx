@@ -27,10 +27,9 @@ const AccountSummary = () => {
 
   const summaryItems = [
     { title: 'Name:', text: userData?.name || 'NA' },
-    { title: 'Current Balance:', text: 'RM' + userData?.bankAccountBalance || 'NA', textStyles: 'text-green-700 font-thin text-3xl' },
+    { title: 'Current Balance:', text: 'RM' + new Intl.NumberFormat().format(userData?.bankAccountBalance as number) || 'NA', textStyles: 'text-green-700 font-thin text-3xl' },
     { title: 'Login ID:', text: userData?.loginId || 'NA' },
     { title: 'Account Number:', text: userData?.bankAccountNo || 'NA' },
-    { title: 'Type:', text: userData?.type || 'NA' },
     { title: 'Email:', text: userData?.email || 'NA' },
     { title: 'City:', text: userData?.city || 'NA' },
     { title: 'Postal Code:', text: userData?.postcode || 'NA' },

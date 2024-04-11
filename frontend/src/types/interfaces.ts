@@ -13,7 +13,6 @@ export interface IRegistrationForm {
 
 export interface User extends IRegistrationForm {
   id: string
-  idNo: string,
   bankAccountNo: string,
   bankAccountBalance: number,
   type: string,

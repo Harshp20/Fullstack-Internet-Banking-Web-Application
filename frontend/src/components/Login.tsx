@@ -56,10 +56,12 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const isLoggedIn = await auth.loginUser(loginFormData)
-    if (isLoggedIn === 'Login successful') {
+    auth.setIsLoading(true)
+    setTimeout(async () => {
+      const isLoggedIn = await auth.loginUser(loginFormData)
+      if (isLoggedIn === 'Login successful') {
       navigate('/account/summary')
-    }
+    }}, 1500)
   }
 
   return (
