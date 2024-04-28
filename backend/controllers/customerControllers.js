@@ -3,8 +3,6 @@ import { Customer } from "../models/customerModel.js";
 
 export const getAllCustomers = asyncHandler(async (req, res) => {
   const customers = await Customer.find();
-  console.log(req.body);
-  console.log(customers);
   res.status(200).json(customers);
 });
 

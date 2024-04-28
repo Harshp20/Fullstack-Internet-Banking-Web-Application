@@ -25,7 +25,6 @@ const FormInput = ({ label, value, errorText, handleChange, ...inputProps }: IFo
     
     if (inputProps.regex) {
       const validity = inputProps.regex?.test(value as string)
-      console.log(validity)
       setIsValid(validity as boolean)
     }
       

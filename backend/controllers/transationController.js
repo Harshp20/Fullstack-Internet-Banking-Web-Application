@@ -16,7 +16,6 @@ export const transferFunds = asyncHandler(async (req, res) => {
     const updateSender = await Customer.updateOne({ _id: req.user._id }, { bankAccountBalance: newBalance });
     const updateRecipient = await Customer.updateOne(recipientFilter, { bankAccountBalance: recipient.bankAccountBalance + parseInt(req.body.amount) });
     if (updateSender.modifiedCount === 1 && updateRecipient.modifiedCount === 1) {
-      const user = await Customer.findById(req.user._id).select('-password')
       res.status(200).json({ id: Date.now() })
     }
   } catch (err) {

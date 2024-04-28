@@ -43,7 +43,6 @@ export const loginCustomer = asyncHandler(async (req, res) => {
 });
 
 export const createNewCustomer = asyncHandler(async (req, res) => {
-  console.log(req.body)
   const ifCustomerExists =
     (await Customer.findOne({ email: req.body.email })) ||
     (await Customer.findOne({ loginId: req.body.loginId }));
