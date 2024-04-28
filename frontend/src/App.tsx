@@ -5,6 +5,8 @@ import AccountSummary from './components/AccountSummary';
 import { AuthRequired } from './utilities/AuthRequired';
 import TransactionHistory from './components/TransactionHistory';
 import Error from './components/NotFound'
+import { ToastContainer, Slide } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -20,6 +22,17 @@ function App() {
         <Route path='/error' element={<Error />} />
         <Route path='*' element={<Error />} />
       </Routes>
+
+      <ToastContainer
+        position={'bottom-left'}
+        autoClose={2500}
+        pauseOnFocusLoss={false}
+        pauseOnHover={false}
+        theme={'light'}
+        closeOnClick={true}
+        transition={Slide}
+        // progressStyle={{background: "rgb(107 33 168)"}}
+      />
     </div>
   );
 }

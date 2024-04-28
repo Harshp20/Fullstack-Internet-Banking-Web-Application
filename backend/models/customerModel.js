@@ -5,11 +5,11 @@ const customerSchema = mongoose.Schema({
       type: String,
       required: [true, 'Missing name']
     },
-    account_no: {
+    bankAccountNo: {
       type: String,
       required: [true, 'Missing value']
     },
-    account_balance: {
+    bankAccountBalance: {
       type: Number,
       required: [true, 'Missing value']
     },
@@ -51,4 +51,4 @@ const customerSchema = mongoose.Schema({
     }
 }, { timestamps: true })
 
-export const customerModel = mongoose.model('customerModel', customerSchema)
+export const Customer = mongoose.model('Customer', customerSchema)

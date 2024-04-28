@@ -35,10 +35,8 @@ const Registration = () => {
       name: 'name',
       type: 'text',
       placeholder: 'Your Full Name',
-      // pattern: '^[A-Za-z0-9]$',
       errorText: 'Please enter your full name',
       required: true
-  
     },
     {
       id: 2,
@@ -64,7 +62,7 @@ const Registration = () => {
       name: 'password',
       type: 'password',
       placeholder: 'Password',
-      pattern: '^[A-Za-z][A-Za-z0-9!@#$%^&*()]{8,}$',
+      regex: /^[A-Za-z][A-Za-z0-9!@#$%^&*()]{7,31}$/,
       errorText: 'Password must start with an alphabet, must contain a minimum of eight characters, at least one letter, one number and one special character',
       required: true
     },
@@ -74,7 +72,7 @@ const Registration = () => {
       name: 'confirm-password',
       type: 'password',
       placeholder: 'Confirm Password',
-      pattern: '',
+      ispassmatch: 'true',
       errorText: 'Passwords don\'t match',
       required: true
     },
@@ -143,17 +141,19 @@ const Registration = () => {
   }, [])
 
   useEffect(() => {
-    if (isLoading) setBtn(<ButtonWithIcon icon={faSpinner} iconClasses='fa-spin' btnText={modifyUser ? 'Update' : 'Register'} btnClasses='p-3 w-2/5 self-start bg-purple-600 hover:bg-purple-500 active:bg-purple-600 text-white text-lg' />)
+    if (isLoading) setBtn(<ButtonWithIcon icon={faSpinner} iconClasses='fa-spin' btnText={modifyUser ? 'Update' : 'Register'} btnClasses='p-3 max-w-[250px] w-[20%] bg-purple-600 hover:bg-purple-500 active:bg-purple-600 text-white text-lg' />)
     else setBtn(getDefaultButton())
   }, [isLoading])
 
   useEffect(() => {
+    const ifPasswordsMatch = registrationData.password === registrationData['confirm-password' as keyof IRegistrationForm]
     setRegInputs(prevRegFormInputs => prevRegFormInputs.map(inputField => {
       if (inputField.name === 'confirm-password') {
-        return { ...inputField, pattern: registrationData.password }
-      } return inputField
+        return { ...inputField, ispassmatch: `${ifPasswordsMatch}` }
+      }
+      return inputField
     }) as IFormInput[])
-  }, [registrationData.password])
+  }, [registrationData.password, registrationData['confirm-password' as keyof IRegistrationForm]])
 
   useEffect(() => {
     if (modifyUser) {
@@ -171,37 +171,41 @@ const Registration = () => {
     })
   }
 
-  const defaultButton = <ButtonWithIcon btnText={modifyUser ? 'Update' : 'Register'} btnClasses='p-3 w-[40%] rounded-none border border-purple-700 active:bg-white active:text-purple-700 self-start hover:text-white hover:bg-purple-700 active:ring-0 outline-none focus:ring-1 focus:ring-purple-500 text-purple-700 text-lg' />
   const getDefaultButton = () => {
-    return defaultButton
+    return <ButtonWithIcon btnText={modifyUser ? 'Update' : 'Register'} btnClasses='p-3 max-w-[250px] w-[20%] rounded-none border border-purple-700 active:bg-white active:text-purple-700 hover:text-white hover:bg-purple-700 active:ring-0 outline-none focus:ring-1 focus:ring-purple-500 text-purple-700 text-lg' />
   }
 
   const handleRegistration = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const isLoggedIn = await registerUser(registrationData)
-    if (isLoggedIn === 'Registration/Update successful') {
-      if (modifyUser && userData) {
-        navigate('/account/summary')
-        setModifyUser(false)
+    try {
+      const isLoggedIn = await registerUser(registrationData)
+      if (isLoggedIn === 'Registration/Update successful') {
+        if (modifyUser && userData) {
+          navigate('/account/summary')
+          setModifyUser(false)
+        }
+        else navigate('/')
       }
-      else navigate('/')
+    } catch (err) {
+      navigate('/error')
     }
-    else navigate('/error')
   }
 
   return (
     <div className='w-full grid place-items-center p-8'>
-      <Container styles='w-1/2'>
-        <div className="w-[65%]">
+      <Container styles='w-[80%]'>
+        <div className="w-full py-6 px-14">
           <span className='text-3xl font-semibold text-purple-800'>{modifyUser ? 'Modify Account Details' : 'Register Yourself'}</span>
-          <form onSubmit={handleRegistration} className='flex mt-4 flex-col gap-4'>
-            {regInputs.map(inputProps => (
-              <FormInput key={inputProps.id} {...inputProps} handleChange={handleChange} value={registrationData[inputProps.name as keyof IRegistrationForm]} />
-            ))}
-            <div className='mt-2 flex flex-row items-end justify-between'>
-              {btn}
+          <form onSubmit={handleRegistration} className='mt-4'>
+            <div className='grid grid-cols-[repeat(auto-fit,minmax(350px,_1fr))] gap-4'>
+              {regInputs.map(inputProps => (
+                <FormInput key={inputProps.id} {...inputProps} handleChange={handleChange} value={registrationData[inputProps.name as keyof IRegistrationForm]} />
+              ))}
+            </div>
+            <div className='mt-12 flex flex-row gap-4 items-end justify-end'>
               {!modifyUser && <span className='text-purple-800 mb-2'>Already have an account? <Link className='underline cursor-pointer' to={'/'}>Login</Link></span>}
               {modifyUser && <button onClick={() => setModifyUser(false)} className='p-3 w-[40%] self-center bg-purple-600 hover:bg-purple-500 active:bg-purple-600 rounded-sm text-white font-semibold text-lg'>Cancel</button>}
+              {btn}
             </div>
           </form>
         </div>

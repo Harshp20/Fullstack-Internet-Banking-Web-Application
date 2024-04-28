@@ -1,16 +1,7 @@
-import { Router } from "express";
-import {
-  getAllCustomers,
-  deleteCustomerById,
-  getCustomerById
-} from "../controllers/transactionControllers.js";
+import express from 'express'
+import { transferFunds } from '../controllers/transationController.js'
+import authRequired from '../middleware/authMiddleware.js'
 
-const customerRouter = Router();
+export const transactioRouter = express.Router()
 
-customerRouter.get("/", getAllCustomers);
-
-customerRouter.get("/:id", getCustomerById);
-
-customerRouter.delete("/:id", deleteCustomerById);
-
-export default customerRouter;
+transactioRouter.put('/transfer', authRequired, transferFunds)

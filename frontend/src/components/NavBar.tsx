@@ -1,6 +1,6 @@
 import { faBuildingColumns, faRightFromBracket, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ButtonWithIcon from './ButtonWithIcon';
 import { useAuthorisation } from '../contexts/AuthContext'
 
@@ -9,9 +9,8 @@ interface INavBar {
 }
 
 const NavBar = ({ mode }: INavBar) => {
-  const { userData, logOutUser, isLoading } = useAuthorisation()
+  const { userData, isLoading, logOutUser, setIsLoading } = useAuthorisation()
   const [btn, setBtn] = useState<React.ReactNode>(getDefaultButton())
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (isLoading) setBtn(<ButtonWithIcon icon={faSpinner} iconClasses='fa-spin' btnText='Logout' btnClasses='p-3 hover:bg-purple-600 active:bg-purple-600 text-white font-semibold text-lg' />)
@@ -23,9 +22,11 @@ const NavBar = ({ mode }: INavBar) => {
   }
 
   const handleLogOut = async (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
-    e.preventDefault()
-    const logoutStatus = await logOutUser()
-    if (logoutStatus === 'Logout successful') navigate('/')
+    setIsLoading(true)
+    // e.preventDefault()
+    // const logoutStatus = await logOutUser()
+    // if (logoutStatus === 'Logout successful') {}
+    logOutUser()
   }
 
   return (
@@ -37,10 +38,10 @@ const NavBar = ({ mode }: INavBar) => {
         {(mode !== 'default') && <ul className='flex flex-row gap-10 text-xl items-center justify-between'>
           <li><Link to='/account/transaction-history' className='cursor-pointer px-4 py-3 hover:bg-purple-600'>Transactions</Link></li>
           <li><Link to='/account/summary' className='cursor-pointer px-4 py-3 hover:bg-purple-600'>Account Summary</Link></li>
-          <li onClick={(e) => handleLogOut(e)}>{btn}</li>
+          <li onClick={handleLogOut}>{btn}</li>
         </ul>}
       </nav>
-      {(mode !== 'default') && <div className='pl-10 py-3 text-2xl bg-purple-100 w-full border border-purple-600 text-purple-700 capitalize border-bot'>Welcome, {userData?.name}</div>}
+      {(mode !== 'default') && <div className='pl-10 py-3 text-2xl bg-purple-100 w-full border border-purple-600 text-purple-700 capitalize border-bot'>Welcome, {userData?.name || 'Dear Customer'}</div>}
     </div>
   )
 }

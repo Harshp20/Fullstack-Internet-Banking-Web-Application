@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import React from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuthorisation } from '../contexts/AuthContext'
 import Container from './Container'
 import { faEdit } from '@fortawesome/free-regular-svg-icons'
@@ -25,7 +26,7 @@ const AccountSummary = () => {
     setTransact(prevState => !prevState)
   }
 
-  const summaryItems = [
+  const summaryItems = useMemo(() => [
     { title: 'Name:', text: userData?.name || 'NA' },
     { title: 'Current Balance:', text: 'RM' + new Intl.NumberFormat().format(userData?.bankAccountBalance as number) || 'NA', textStyles: 'text-green-700 font-thin text-3xl' },
     { title: 'Login ID:', text: userData?.loginId || 'NA' },
@@ -35,7 +36,7 @@ const AccountSummary = () => {
     { title: 'Postal Code:', text: userData?.postcode || 'NA' },
     { title: 'State:', text: userData?.state || 'NA' },
     { title: 'Country:', text: userData?.country || 'NA' },
-  ]
+  ], [userData])
 
   return (
     <div className='min-h-[70vh] w-full grid place-items-center'>

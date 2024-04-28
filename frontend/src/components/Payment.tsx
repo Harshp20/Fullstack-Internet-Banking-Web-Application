@@ -4,17 +4,19 @@ import { faCircleXmark } from '@fortawesome/free-regular-svg-icons'
 import { useEffect, useState } from "react"
 import { useTransaction } from "../contexts/TransactionContext"
 import { StatusModal } from "./StatusModal"
-
+import { useAuthorisation } from "../contexts/AuthContext"
+import { toast } from "react-toastify"
 interface ITransactionProps {
   activateTransaction: () => void
 }
 
 const Payment = ({ activateTransaction }: ITransactionProps) => {
-  const [recipient, setRecipient] = useState('')
+  const [recipientAccountNo, setRecipient] = useState('')
   const [amount, setAmount] = useState(0)
   const [transactionStatus, setTransactionStatus] = useState<string>('')
   const [btn, setBtn] = useState<React.ReactNode>(getDefaultButton())
   const { isLoading, transactionDetails, initiateTransaction } = useTransaction()
+  const { userData } = useAuthorisation()
 
   useEffect(() => {
     if (isLoading) setBtn(<ButtonWithIcon icon={faSpinner} iconClasses='fa-spin' btnText='Processing' btnClasses='p-3 bg-purple-600 hover:bg-purple-500 active:bg-purple-600 text-white text-lg' />)
@@ -27,7 +29,12 @@ const Payment = ({ activateTransaction }: ITransactionProps) => {
 
   const handleTransaction = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const response = await initiateTransaction({ recipient, amount })
+    if (userData?.bankAccountBalance as number - amount < 0) {
+      toast.error('Insufficient balance', { hideProgressBar: true, theme: 'colored' })
+      return
+    }
+
+    const response = await initiateTransaction({ recipientAccountNo, amount })
     if (response !== 'Transaction successful') setTransactionStatus('Transaction failure')
     else setTransactionStatus('Transaction successful')
   }

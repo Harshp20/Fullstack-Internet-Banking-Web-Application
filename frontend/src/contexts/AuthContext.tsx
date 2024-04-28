@@ -1,7 +1,8 @@
 import { useState, createContext, useContext } from "react"
 import { IAuthValues, IChildrenProps, ILoginForm, IRegistrationForm, User } from "../types/interfaces"
 import axios from 'axios';
-
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify'
 const AuthContext = createContext<IAuthValues>({} as IAuthValues)
 
 export const useAuthorisation = () => {
@@ -13,8 +14,12 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [modifyUser, setModifyUser] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [isLoggedOut, setIsLoggedOut] = useState(false)
   const [isRegistered, setIsRegistered] = useState(false)
+  const navigate = useNavigate()
+
+  const isLoggedIn = () => {
+    return !!userData
+  }
 
   const createFormData = (registrationData: IRegistrationForm) => {
     let formData;
@@ -38,9 +43,8 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
   const getAxiosOptions = () => {
     return {
       headers: {
-        accept: 'application/json',
-        'API-KEY': process.env.REACT_APP_API_KEY as string,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     }
   }
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
   const getUserDetails = async () => {
     const axiosOptions = getAxiosOptions()
     try {
-      const response = await axios.get(process.env.REACT_APP_API_URL + '/user/' + userData?.id, axiosOptions)
+      const response = await axios.get(process.env.REACT_APP_API_URL + '/api/banking/customer', axiosOptions)
       if (response.data) {
         setUserData(response.data)
         return Promise.resolve('Get User Successful')
@@ -59,42 +63,38 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
     }
   }
 
-  const loginUser = async (loginFormData: ILoginForm) => {
+  const loginUser = async (loginFormData: ILoginForm): Promise<string> => {
     const axiosOptions = getAxiosOptions()
     const formData = loginFormData
-    try {
-      const response = await axios.post(process.env.REACT_APP_API_URL + '/auth/login', formData, axiosOptions)
-      if (response.data) {
-        setUserData(response.data)
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await axios.post(process.env.REACT_APP_API_URL + '/auth/login', formData, axiosOptions)
+        if (response.data) {
+          setUserData(response.data)
+          sessionStorage.setItem('token', response.data.token)
+          setTimeout(() => {
+            resolve('Login successful')
+            setIsLoading(false)
+          }, 2000)
+        }
+      } catch (err) {
         setIsLoading(false)
-        return Promise.resolve('Login successful')
+        setIsError(true)
+        setTimeout(() => setIsError(false), 3000)
+        console.error(err)
+        return reject('Login failure')
       }
-    } catch (err) {
-      setIsError(true)
-      setTimeout(() => setIsError(false), 3000)
-      console.error(err)
-      return Promise.reject('Login failure')
-    }
+    })
   }
 
-  const logOutUser = async () => {
-    setIsLoading(true)
-    const axiosOptions = getAxiosOptions()
-    const formData = { loginId: userData?.loginId }
-    try {
-      const response = await axios.post(process.env.REACT_APP_API_URL + '/auth/logout', formData, axiosOptions)
+  const logOutUser = async (): Promise<any> => {
+    setTimeout(() => {
+      navigate('/')
+      setUserData(null)
+      sessionStorage.clear()
       setIsLoading(false)
-      if (response.status === 200) {
-        setUserData(null)
-        setIsLoggedOut(true)
-        setTimeout(() => setIsLoggedOut(false), 3000)
-        return Promise.resolve('Logout successful')
-      }
-    } catch (err) {
-      setIsLoading(false)
-      console.error(err)
-      return Promise.reject('Logout failure')
-    }
+      toast.info('Successfully logged out')
+    }, 2000)
   }
 
   const registerUser = async (registrationData: IRegistrationForm) => {
@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }: IChildrenProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ userData, setUserData, isLoading, isError, isLoggedOut, logOutUser, isRegistered, setIsLoading, loginUser, registerUser, modifyUser, setModifyUser, getUserDetails }}>
+    <AuthContext.Provider value={{ userData, setUserData, isLoading, isError, logOutUser, isRegistered, isLoggedIn, setIsLoading, loginUser, registerUser, modifyUser, setModifyUser, getUserDetails }}>
       {children}
     </AuthContext.Provider>
   )

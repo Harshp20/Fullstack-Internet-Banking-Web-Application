@@ -18,9 +18,8 @@ export const TransactionProvider = ({ children }: IChildrenProps) => {
   const getAxiosOptions = () => {
     return {
       headers: {
-        accept: 'application/json',
-        'API-KEY': process.env.REACT_APP_API_KEY as string,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
     }
   }
@@ -28,9 +27,9 @@ export const TransactionProvider = ({ children }: IChildrenProps) => {
   const initiateTransaction = async (transactionFormData: ITransactionForm) => {
     setIsLoading(true)
     const axiosOptions = getAxiosOptions()
-    const formData = { ...transactionFormData, sender: userData?.bankAccountNo }
+    // const formData = { ...transactionFormData }
     try {
-      const response = await axios.post(process.env.REACT_APP_API_URL + '/transaction', formData, axiosOptions)
+      const response = await axios.put(process.env.REACT_APP_API_URL + '/api/banking/transaction/transfer', transactionFormData, axiosOptions)
       if (response.data) {
         setTransactionDetails(response.data)
         setIsLoading(false)

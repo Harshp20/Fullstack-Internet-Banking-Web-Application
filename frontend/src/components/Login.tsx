@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import FormInput from './FormInput'
 import Container from './Container';
 import { ILoginForm, IFormInput } from '../types/interfaces';
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import ButtonWithIcon from './ButtonWithIcon';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
 import NavBar from './NavBar';
+import { toast } from 'react-toastify'
 
 const initState: ILoginForm = { loginId: '', password: '' }
 
@@ -57,11 +58,22 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     auth.setIsLoading(true)
-    setTimeout(async () => {
-      const isLoggedIn = await auth.loginUser(loginFormData)
-      if (isLoggedIn === 'Login successful') {
-      navigate('/account/summary')
-    }}, 1500)
+    toast.promise(auth.loginUser(loginFormData),
+    {
+      pending: 'Logging in...',
+      success: {
+        render () {
+          navigate('/account/summary')
+          return 'Successfully logged in'
+        }
+      },
+      error: {
+        render() {
+          navigate('/account/summary')
+          return 'Couldn\'t log in'
+        }
+      }
+    })
   }
 
   return (
@@ -75,7 +87,6 @@ const Login = () => {
             <form onSubmit={handleLogin} className='flex mt-4 flex-col gap-4'>
               {loginInputs.map(inputProps => <FormInput key={inputProps.id} {...inputProps} handleChange={handleChange} />)}
               {auth.isError && <span className='text-red-600'>Invalid Credentials/User Doesn't Exist</span>}
-              {auth.isLoggedOut && <span className='text-green-700'>Successfully Logged Out!</span>}
               {auth.isRegistered && <span className='text-green-700'>Successfully Registered! Please Log In</span>}
               <div className='mt-2 flex flex-row items-end justify-between'>
                 {btn}

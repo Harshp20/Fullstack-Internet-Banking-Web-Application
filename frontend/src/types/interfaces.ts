@@ -12,10 +12,11 @@ export interface IRegistrationForm {
 }
 
 export interface User extends IRegistrationForm {
-  id: string
-  bankAccountNo: string,
-  bankAccountBalance: number,
-  type: string,
+  id: string;
+  bankAccountNo: string;
+  bankAccountBalance: number;
+  type: string;
+  token?: string
 }
 
 export interface IFormInput {
@@ -24,9 +25,10 @@ export interface IFormInput {
   name: string;
   type: string;
   placeholder: string;
-  pattern?: string
-  errorText: string,
-  required?: boolean
+  regex?: RegExp;
+  ispassmatch?: string;
+  errorText: string;
+  required?: boolean;
 }
 export interface ILoginForm {
   loginId: string;
@@ -34,49 +36,53 @@ export interface ILoginForm {
 }
 
 export interface ITransactionForm {
-  recipient: string;
+  recipientAccountNo: string;
   amount: number;
 }
 
 export interface IChildrenProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export interface IModal extends IChildrenProps {
-  styles?: string
-  title: string
+  styles?: string;
+  title: string;
 }
 
 export interface ITransaction {
-  id: string
-  recipient: string
-  sender: string
-  value: number
-  datetime: string
+  id: string;
+  recipient: string;
+  sender: string;
+  value: number;
+  datetime: string;
 }
 
 export interface ITransactionContext {
-  isLoading: boolean
-  transactionDetails: User | null
-  transactionHistory: ITransaction[] | null
-  setIsLoading: (val: boolean) => void
-  initiateTransaction: (transactionDetails: ITransactionForm) => Promise<string | undefined>
-  getAllTransactions: (signal: AbortSignal) => Promise<string | undefined>
-  setTransactionHistory: (val: ITransaction[] | null) => void
+  isLoading: boolean;
+  transactionDetails: User | null;
+  transactionHistory: ITransaction[] | null;
+  setIsLoading: (val: boolean) => void;
+  initiateTransaction: (
+    transactionDetails: ITransactionForm
+  ) => Promise<string | undefined>;
+  getAllTransactions: (signal: AbortSignal) => Promise<string | undefined>;
+  setTransactionHistory: (val: ITransaction[] | null) => void;
 }
 
 export interface IAuthValues {
-  userData: User | null
-  setUserData: (val: User | null) => void
-  isLoading: boolean
-  isError: boolean
-  isLoggedOut: boolean
-  isRegistered: boolean
-  setIsLoading: (val: boolean) => void
-  loginUser: (loginFormData: ILoginForm) => Promise<string | undefined>
-  logOutUser: () => Promise<string | undefined>
-  registerUser: (registrationData: IRegistrationForm) => Promise<string | undefined>
-  modifyUser: boolean
-  setModifyUser: (val: boolean) => void
-  getUserDetails: () => Promise<string | undefined>
+  userData: User | null;
+  setUserData: (val: User | null) => void;
+  isLoading: boolean;
+  isError: boolean;
+  isRegistered: boolean;
+  isLoggedIn: () => boolean;
+  setIsLoading: (val: boolean) => void;
+  loginUser: (loginFormData: ILoginForm) => Promise<string>;
+  logOutUser: () => Promise<string | undefined>;
+  registerUser: (
+    registrationData: IRegistrationForm
+  ) => Promise<string | undefined>;
+  modifyUser: boolean;
+  setModifyUser: (val: boolean) => void;
+  getUserDetails: () => Promise<string | undefined>;
 }
